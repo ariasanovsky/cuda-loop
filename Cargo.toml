@@ -1,0 +1,17 @@
+[package]
+name = "cuda-loop"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "kernel"
+crate-type = ["cdylib"]
+
+[dependencies]
+# We don't want `cudarc` as a default dependency, since it's only needed for the `examples` folder
+# Instead, we add it as an optional dependency that is enabled when the `cudarc` feature is enabled
+cudarc = { version = "0.9.8", optional = true }
+
+[[bin]]
+name = "mvp"
+path = "examples/mvp.rs"
