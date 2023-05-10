@@ -1,3 +1,38 @@
+use std::process::Command;
+use std::io::{self, Write};
+use std::fs;
+use std::path::Path;
+
+fn build_nvptx() -> io::Result<()> {
+    let output = Command::new("cargo")
+        .arg("+nightly")
+        .arg("rustc")
+        .arg("--lib")
+        .arg("--target")
+        .arg("nvptx64-nvidia-cuda")
+        .arg("--release")
+        .arg("--")
+        .arg("--emit")
+        .arg("asm")
+        .output()?;
+    
+    io::stdout().write_all(&output.stdout)?;
+    io::stderr().write_all(&output.stderr)?;
+    
+    let target_dir = Path::new("target/nvptx64-nvidia-cuda/release");
+    let kernel_ptx = target_dir.join("kernel.ptx");
+    let kernels_dir = Path::new("kernels");
+    
+    if kernel_ptx.exists() {
+        let dest = kernels_dir.join("kernel.ptx");
+        fs::create_dir_all(kernels_dir)?;
+        fs::copy(&kernel_ptx, &dest)?;
+        println!("Copied {} to {}", kernel_ptx.display(), dest.display());
+    }
+    
+    Ok(())
+}
+
 use cudarc::{
     driver::{CudaDevice, DriverError, LaunchAsync, LaunchConfig},
     nvrtc::Ptx,
@@ -6,8 +41,10 @@ use cudarc::{
 fn main() -> Result<(), DriverError> {
     let dev = CudaDevice::new(0)?;
 
+    build_nvptx().unwrap();
+
     // You can load a function from a pre-compiled PTX like so:
-    println!("loaoding...");
+    println!("loading...");
     dev.load_ptx(Ptx::from_file("kernels/kernel.ptx"), "kernel", &["kernel"])?;
     println!("loaded!");
 
