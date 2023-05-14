@@ -1,4 +1,7 @@
-# cuda-loop
+# [DEPRECATED] cuda-loop
+
+This repository is an experimental playground related to a [cudarc PR](https://github.com/coreylowman/cudarc/pull/148) related to Rust PTX emission.
+See also the associated [cudarc fork](https://github.com/ariasanovsky/cudarc).
 
 ## Running and building PTX on-the-fly
 
